@@ -1,0 +1,90 @@
+does this kehadiran system have
+
+1) tiering. for modularity, i'll have the framework for the tiering. folder-separation?
+my vision is beginning to be too big.
+
+it does have tiering.
+user - fill kehadiran
+admin - see summary
+
+ke... user shj... tpi ad sensitive info... noic.
+
+2) queueing system.
+
+3) change language.
+
+4) IC deduplication
+
+-- Final Checking
+remove bloat
+stylize
+optimize
+
+
+-----------------------------------------
+
+original form:
+
+id:
+full name:
+username:
+IC Number:
+Gender:
+Date of Birth:
+Phone Number:
+Email ID:
+Matrix No.:
+Current Member Education Course:
+Password:
+
+
+Street Name:
+City:
+Zipcode:
+State:
+
+Choose Training Plan:
+
+-----------------------------------------
+
+MMG form:
+
+;Student Info;
+
+ID:
+Full Name:
+IC Number:
+Phone Number:
+
+;Validation;
+
+WhatsApp
+Walk-In
+
+hadir bersama siapa?
+
+ibu-bapa
+kawan/saudara
+tiada
+
+checkbox: boleh buat keputusan
+
+disabled:
+Username
+Gender
+Date of Birth
+h_id
+a_id
+
+[Address]
+Street Name
+City
+Zipcode
+State
+Choose Training Plan
+
+
+
+
+
+

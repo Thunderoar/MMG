@@ -1,0 +1,16 @@
+/* Apply flexbox layout to the container */
+.page-container {
+    display: flex;
+    min-height: 100vh; /* Ensures the container stretches to at least full viewport height */
+}
+
+.sidebar-menu {
+    width: 250px; /* Set your sidebar width */
+    background-color: #2b303a;
+    color: #ffffff;
+}
+
+.main-content {
+    flex-grow: 1; /* This allows the main content to expand while the sidebar stays fixed */
+    padding: 20px;
+}
