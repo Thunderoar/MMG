@@ -14,6 +14,17 @@ ke... user shj... tpi ad sensitive info... noic.
 3) change language.
 
 4) IC deduplication
+5) Editing
+
+6) Dynamic Location,
+
+such as 
+
+this line here
+
+<h1>Butiran Kehadiran Seminar  ;dynamic here;</h1>
+
+it'll change according where it took place.
 
 -- Final Checking
 remove bloat

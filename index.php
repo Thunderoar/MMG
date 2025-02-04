@@ -146,28 +146,6 @@ legend {
 .a1-btn + .a1-btn {
   margin-left: 10px;
 }
-
-/* Table Styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-table tr td {
-  padding: 10px;
-}
-
-table tr td label {
-  margin-bottom: 5px;
-  color: #444;
-}
-.text-danger {
-    color: red;
-}
-
-.text-success {
-    color: green;
-}
 	/* Add a green text color and a checkmark when the requirements are right */
 	.valid {
 	color: green;
@@ -191,12 +169,12 @@ table tr td label {
 </head>
       <body class="page-body  page-fade" onload="collapseSidebar()">
 
-    	<div class="page-container sidebar-collapsed" id="navbarcollapse">	
+    	<div class="" id="navbarcollapse">	
 
     		<div class="main-content">
 
 		
-        	<h3>Sistem Kehadiran</h3>
+        	<h1>Butiran Kehadiran Seminar</h1>
 
 		<hr />
         
@@ -229,31 +207,127 @@ table tr td label {
     autocomplete="off" 
     maxlength="14"
     required>
+  <div id="ic-error" class="mt-2" style="display: none;"></div>
 </div>
+
 <script>
-  const icInput = document.getElementById('no_ic');
-  
-  icInput.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-    
-    if (value.length > 0) {
-      // Format with hyphens
-      if (value.length <= 6) {
-        value = value;
-      } else if (value.length <= 8) {
-        value = value.slice(0, 6) + '-' + value.slice(6);
-      } else {
-        value = value.slice(0, 6) + '-' + value.slice(6, 8) + '-' + value.slice(8, 12);
+  (function() {
+    const icInput = document.getElementById('no_ic');
+    const errorDiv = document.getElementById('ic-error');
+    let checkTimeout;
+    let controller;
+
+    icInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+
+      if (value.length > 0) {
+        value = formatICNumber(value);
+      }
+
+      e.target.value = value;
+      const isComplete = value.replace(/-/g, '').length === 12;
+      updateValidationUI(false);
+
+      clearTimeout(checkTimeout);
+      hideError();
+
+      if (isComplete) {
+        checkTimeout = debounceCheck(value.replace(/-/g, ''));
+      }
+    });
+
+  function formatICNumber(value) {
+    if (value.length <= 6) return value;
+    if (value.length <= 8) return `${value.slice(0,6)}-${value.slice(6)}`;
+    return `${value.slice(0,6)}-${value.slice(6,8)}-${value.slice(8,12)}`;
+  }
+
+    function updateValidationUI(isValid) {
+      icInput.classList.remove('is-valid', 'is-invalid');
+      if (isValid) {
+        icInput.classList.add('is-valid');
+      } else if (icInput.value.length > 0) {
+        icInput.classList.add('is-invalid');
       }
     }
-    
-    e.target.value = value;
-    
-    // Validation
-    const isComplete = value.replace(/-/g, '').length === 12;
-    e.target.style.borderColor = isComplete ? 'green' : 'red';
-  });
+
+    const debounceCheck = debounce((icNumber) => {
+      checkICExists(icNumber);
+    }, 500);
+
+    function debounce(func, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    async function checkICExists(icNumber) {
+      if (controller) {
+        controller.abort();
+      }
+      controller = new AbortController();
+      document.getElementById('ic-loading').style.display = 'inline-block';
+      try {
+        const response = await fetch('check_ic.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `ic=${encodeURIComponent(icNumber)}`,
+          signal: controller.signal
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Unable to verify IC number at this time.');
+        }
+
+        handleICResponse(data);
+      } catch (error) {
+        if (error.name === 'AbortError') return; // Request was aborted
+        console.error('Validation Error:', error);
+        showError('Failed to verify IC number. Please try again later.');
+        icInput.setCustomValidity('Validation error');
+      } finally {
+        document.getElementById('ic-loading').style.display = 'none';
+      }
+    }
+
+    function handleICResponse(data) {
+      if (data.exists) {
+        showError('This IC number is already registered!');
+        icInput.setCustomValidity('IC number exists');
+        updateValidationUI(false);
+      } else {
+        hideError();
+        icInput.setCustomValidity('');
+        updateValidationUI(true);
+      }
+    }
+
+    function showError(message) {
+      errorDiv.style.display = 'block';
+      errorDiv.innerHTML = `
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+          <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+            <use xlink:href="#exclamation-triangle-fill"/>
+          </svg>
+          <div>${message}</div>
+        </div>
+      `;
+    }
+
+    function hideError() {
+      errorDiv.style.display = 'none';
+      errorDiv.innerHTML = '';
+    }
+  })();
 </script>
+
+
 <div class="form-group">
     <label for="mobile">Phone Number</label>
     <input 
@@ -305,27 +379,36 @@ table tr td label {
   
 <div class="form-group">
   <p>Please select your favorite Web language:</p>
-  <input type="radio" id="html" name="fav_language" value="HTML">
-  <label for="html">WhatsApp</label><br>
-  <input type="radio" id="css" name="fav_language" value="CSS">
-  <label for="css">Walk-In</label><br>
+  <div style="display: inline-block; margin-right: 20px;">
+    <input type="radio" id="html" name="fav_language" value="HTML">
+    <label for="html">WhatsApp</label>
+  </div>
+  <div style="display: inline-block;">
+    <input type="radio" id="css" name="fav_language" value="CSS">
+    <label for="css">Walk-In</label>
+  </div>
 </div>
 
 </fieldset>
 
 
 <fieldset style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border: 1px solid #ccc;">
-  <legend style="font-size: 20px; color: #333; font-weight: bold;">Pengesahan melalui:</legend>
+  <legend style="font-size: 20px; color: #333; font-weight: bold;">Hadir Bersama Siapa:</legend>
   
-<div class="form-group">
-  <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-  <label for="vehicle1"> Ibu-Bapa</label><br>
-  <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
-  <label for="vehicle2"> Kawan / Saudara</label><br>
-  <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-  <label for="vehicle3"> Tiada</label><br><br>
-</div>
-
+  <div class="form-group" style="margin-top: 15px;">
+    <div style="display: inline-block; margin-right: 30px;">
+      <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+      <label for="vehicle1">Ibu-Bapa</label>
+    </div>
+    <div style="display: inline-block; margin-right: 30px;">
+      <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+      <label for="vehicle2">Kawan / Saudara</label>
+    </div>
+    <div style="display: inline-block;">
+      <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+      <label for="vehicle3">Tiada</label>
+    </div>
+  </div>
 </fieldset>
 
     <!-- Form Actions -->
