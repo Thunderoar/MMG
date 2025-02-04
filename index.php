@@ -3,13 +3,13 @@
 <head>
 
     <title>ICYM Karate-Do | New User</title>
-    <link rel="stylesheet" href="../../css/style.css"  id="style-resource-5">
-    <script type="text/javascript" src="../../js/Script.js"></script>
-    <link rel="stylesheet" href="../../css/dashMain.css">
-    <link rel="stylesheet" type="text/css" href="../../css/entypo.css">
+    <link rel="stylesheet" href="css/style.css"  id="style-resource-5">
+    <script type="text/javascript" src="js/Script.js"></script>
+    <link rel="stylesheet" href="css/dashMain.css">
+    <link rel="stylesheet" type="text/css" href="css/entypo.css">
     <link href="a1style.css" type="text/css" rel="stylesheet">
-    <script src="../../js/moment.min.js"></script>
-	<script src="../../js/jquery-3.4.1.min.js"></script>
+    <script src="js/moment.min.js"></script>
+	<script src="js/jquery-3.4.1.min.js"></script>
 	
     <style>
     	.page-container .sidebar-menu #main-menu li#regis > a {
@@ -196,7 +196,7 @@ table tr td label {
     		<div class="main-content">
 
 		
-        	<h3>New Registration</h3>
+        	<h3>Sistem Kehadiran</h3>
 
 		<hr />
         
@@ -205,36 +205,19 @@ table tr td label {
 
 
   <form id="form1" name="form1" method="post" action="new_submit.php" enctype="multipart/form-data" style="background-color: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-    
-<!-- Profile Picture Section -->
-<div style="display: flex; justify-content: flex-end;"> <!-- Added Flexbox container -->
-  <fieldset style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border: 1px solid #ccc;">
-    <legend style="font-size: 20px; color: #333; font-weight: bold;">Profile Picture</legend>
-    <div>
-      <input type="file" name="image" accept="image/*" style="margin-bottom: 10px;" onchange="previewImage(event)">
-      <div id="imagePreview" style="margin-top: 10px;">
-        <img id="chosenImage" src="" alt="Profile Preview" style="display: none; max-width: 150px; border-radius: 8px;"/>
-      </div>
-    </div>
-  </fieldset>
-</div>
 
 <!-- Personal Information Section -->
 <fieldset style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border: 1px solid #ccc;">
   <legend style="font-size: 20px; color: #333; font-weight: bold;">Personal Information</legend>
   <div>
     <div style="margin-bottom: 10px;">
-      <label>Membership ID:</label>
+      <label>ID:</label>
       <input type="text" name="m_id" value="<?php echo time(); ?>" readonly required style="width: 100%;" />
     </div>
     <div style="margin-bottom: 10px;">
       <label>Full Name:</label>
       <input type="text" name="fullName" required style="width: 100%;" />
     </div>
-			<!-- <div class="form-group">
-              <label for="u_name">Username</label>
-              <input type="text" class="form-control" name="u_name" id="u_name" placeholder="" autocomplete="off" required>
-            </div> -->
 <div class="form-group">
   <label for="no_ic">IC Number</label>
   <input 
@@ -317,12 +300,37 @@ table tr td label {
   </div>
 </fieldset>
 
+<fieldset style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border: 1px solid #ccc;">
+  <legend style="font-size: 20px; color: #333; font-weight: bold;">Pengesahan melalui:</legend>
+  
+<div class="form-group">
+  <p>Please select your favorite Web language:</p>
+  <input type="radio" id="html" name="fav_language" value="HTML">
+  <label for="html">WhatsApp</label><br>
+  <input type="radio" id="css" name="fav_language" value="CSS">
+  <label for="css">Walk-In</label><br>
+</div>
+
+</fieldset>
+
+
+<fieldset style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border: 1px solid #ccc;">
+  <legend style="font-size: 20px; color: #333; font-weight: bold;">Pengesahan melalui:</legend>
+  
+<div class="form-group">
+  <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+  <label for="vehicle1"> Ibu-Bapa</label><br>
+  <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+  <label for="vehicle2"> Kawan / Saudara</label><br>
+  <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+  <label for="vehicle3"> Tiada</label><br><br>
+</div>
+
+</fieldset>
 
     <!-- Form Actions -->
     <div style="text-align: center; margin-top: 20px;">
-      <button type="submit" class="a1-btn a1-blue">Register</button>
-    <button type="reset" class="a1-btn a1-blue" onclick="checkForChanges(event)">Reset</button>
-<button type="button" class="a1-btn a1-blue" onclick="checkForChangesAndRedirect(event, 'view_mem.php')">Return</button>
+      <button type="submit" class="a1-btn a1-blue">Submit</button>
 
     </div>
   </form>

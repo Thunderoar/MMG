@@ -85,6 +85,25 @@ Choose Training Plan
 
 
 
+database:
+
+1. student
+	- pengesahan dari mana
+	- Giliran
+	- Student ID
+	- Nama
+	- NoIC
+	- E-Mail
+	- Gender
+	- Joining Date
+	- 
+
+
+2. pegawai
+	- nama
+	-
+
+
 
 
 
