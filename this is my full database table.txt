@@ -1,0 +1,12 @@
+this is my full database table
+
+mmg_db
+
+Table
+attendedstudent
+
+Attribute
+FromWhere, Giliran, fullName, NoIC, NoTel, DateofArrival, WithWho
+
+
+
