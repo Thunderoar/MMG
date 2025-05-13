@@ -70,37 +70,49 @@ function getNextGiliranNumber() {
 }
 
 /**
- * Get the display order of undealt records
+ * Get the display order of undealt records based on priority system
  * @return array Array of NoIC values in display order
  */
 function getDisplayOrder() {
     global $conn;
     
-    $sql = "SELECT NoIC FROM attendedstudent 
-            WHERE is_dealt = 0 
-            ORDER BY 
-                CASE FromWhere 
-                    WHEN 'WhatsApp' THEN 0 
-                    ELSE 1 
-                END,
-                CASE WithWho
-                    WHEN 'Ibu / Bapa' THEN 0
-                    WHEN 'Rakan / Saudara' THEN 1
-                    ELSE 2
-                END,
-                CASE 
-                    WHEN WithWho = 'Sendiri' AND canMakeDecision = 1 THEN 0
-                    WHEN WithWho = 'Sendiri' AND canMakeDecision = 0 THEN 1
-                    ELSE 0
-                END,
-                DateofArrival ASC";
+    // Get current date in Malaysia timezone
+    date_default_timezone_set("Asia/Kuala_Lumpur");
+    $today = date('Y-m-d');
     
-    $result = mysqli_query($conn, $sql);
-    $order = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $order[] = $row['NoIC'];
+    // Get the next upcoming seminar date
+    $seminarQuery = "SELECT id, zone, seminar_date, seminar_time, location 
+                     FROM seminar_schedules 
+                     WHERE seminar_date >= ? AND is_active = 1 
+                     ORDER BY seminar_date ASC, seminar_time ASC LIMIT 1";
+    $stmt = mysqli_prepare($conn, $seminarQuery);
+    mysqli_stmt_bind_param($stmt, "s", $today);
+    mysqli_stmt_execute($stmt);
+    $seminarResult = mysqli_stmt_get_result($stmt);
+    $seminarInfo = mysqli_fetch_assoc($seminarResult);
+    
+    if (!$seminarInfo) {
+        return []; // No upcoming seminars found
     }
     
-    return $order;
+    // Get all undealt records for this seminar
+    $sql = "SELECT NoIC, WithWho, canMakeDecision, FromWhere, DateofArrival, priority 
+            FROM attendedstudent 
+            WHERE is_dealt = 0 AND is_deleted = 0
+            AND (seminar_id = ? OR seminar_id IS NULL)  -- Include records with no seminar_id for backward compatibility
+            ORDER BY priority ASC, DateofArrival ASC";
+    
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $seminarInfo['id']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
+    // Process the results maintaining priority order
+    $entries = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $entries[] = $row['NoIC'];
+    }
+    
+    return $entries;
 }
 ?>

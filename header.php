@@ -1,19 +1,30 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require 'include/db_conn.php';
+
+// Get system settings
+$settings = [];
+$sql = "SELECT setting_key, setting_value FROM system_settings";
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>ICYM Karate-Do &mdash; Colorlib Website Template</title>
+  <title><?php echo htmlspecialchars($settings['system_title'] . ' ' . $settings['state_name']); ?></title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <!-- Fonts and Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,700,900|Oswald:400,700"> 
   <link rel="stylesheet" href="fonts/icomoon/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
   <!-- CSS Files -->
-  <!-- <link rel="stylesheet" href="css/bootstrap.min.css">  causes problem with scaling --> 
   <link rel="stylesheet" href="css/jquery.fancybox.min.css">
   <link rel="stylesheet" href="css/jquery-ui.css">
   <link rel="stylesheet" href="css/owl.carousel.min.css">
@@ -22,16 +33,18 @@ require 'include/db_conn.php';
   <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
   <link rel="stylesheet" href="css/aos.css">
   <link rel="stylesheet" href="css/homepagestyle.css">
-  <!-- Optional additional bootstrap -->
-  <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> 
-  causes problem with scaling --> 
 
-  <!-- JS Files (if needed in the header) -->
+  <!-- JS Files -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
   <style>
+    :root {
+      --primary-color: <?php echo $settings['color_theme'] ?? '#4361ee'; ?>;
+      --primary-dark: <?php echo adjustBrightness($settings['color_theme'] ?? '#4361ee', -20); ?>;
+    }
+
     /* General Link and Paragraph Styles */
     a:not(.not) {
       color: #a9c9fc !important;
@@ -71,84 +84,38 @@ require 'include/db_conn.php';
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
     }
     /* Menu Styles */
-    .menu {
-      list-style-type: none; 
-      padding: 0; 
-      margin: 0; 
+    .menu a {
+      font-size: 1rem;
+      color: white !important;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
       display: flex;
       align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
     }
-    .menu li {
-      margin-right: 20px; 
-    }
-    .menu a {
-      text-decoration: none; 
-      padding: 10px 15px; 
-      color: #343a40; 
-      transition: transform 0.3s ease !important; 
-    }
+
     .menu a:hover {
-      transform: scale(1.1) !important; 
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 0.375rem;
     }
-    /* Dropdown Styles */
-    .dropdown {
-      position: relative; 
-      width: 230px; 
-      filter: url(#goo);
+
+    .menu i {
+      font-size: 1.2rem;
     }
-    .dropdown__face,
-    .dropdown__items {
-      background-color: #fff; 
-      padding: 20px; 
-      border-radius: 25px; 
-    }
-    .dropdown__face {
-      display: block; 
-      position: relative; 
-      cursor: pointer; 
-    }
-    .dropdown__items {
-      margin: 0;
-      position: absolute;
-      right: 0;
-      top: 100%; /* Below the button */
+
+    .menu li {
       list-style: none;
+    }
+
+    .menu {
       display: flex;
-      flex-direction: column; /* Stack vertically */
-      visibility: hidden;
-      z-index: -1;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.93, 0.88, 0.1, 0.8);
-      background-color: #fff;
-      border-radius: 5px;
-    }
-    .dropdown__items.visible {
-      visibility: visible;
-      opacity: 1;
-      z-index: 1;
-    }
-    .dropdown__items li {
-      padding: 10px 15px;
-      white-space: nowrap;
-    }
-    .dropdown__items li:hover {
-      background-color: #f0f0f0;
-    }
-    .dropdown__arrow {
-      border-bottom: 2px solid #000; 
-      border-right: 2px solid #000; 
-      position: absolute; 
-      top: 50%; 
-      right: 30px; 
-      width: 10px; 
-      height: 10px; 
-      transform: rotate(45deg) translateY(-50%); 
-      transform-origin: right; 
+      gap: 1rem;
     }
     /* Fixed Header Styles */
     header.site-navbar {
-      background-color: #00003c;
-      height: 80px;  /* Fixed height */
+      background-color: var(--primary-color);
+      height: 80px;  
       width: 100%;
       position: fixed;
       top: 0;
@@ -173,22 +140,68 @@ require 'include/db_conn.php';
       margin-right: 10px;
     }
     .site-logo a {
-      font-size: 15px;
-      color: #a9c9fc !important;
+      font-size: 18px;
+      color: white !important;
       text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
-    nav.site-navigation .menu {
-      margin: 0;
-      padding: 0;
+
+    .admin-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
-    nav.site-navigation .menu li a {
-      color: #fff;
+
+    .admin-nav a {
+      color: white !important;
       text-decoration: none;
-      padding: 10px 15px;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      transition: all 0.3s ease;
     }
-    nav.site-navigation .menu li a:hover {
-      color: #a9c9fc;
+
+    .admin-nav a:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
+
+    .admin-nav .login-btn {
+      background: #28a745 !important;
+      color: white !important;
+      font-weight: bold !important;
+      padding: 0.5rem 1rem !important;
+      border: none !important;
+      border-radius: 0.375rem !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .admin-nav .login-btn:hover {
+      background: #218838 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    /* Logout Button Styles */
+    .logout-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ff4757) !important;
+      color: white;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #ff6b6b, #ff4757) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+    }
+
     /* Remove body centering so the header stays at the top */
     body {
       font-family: "Lato", Arial, sans-serif;
@@ -199,9 +212,7 @@ require 'include/db_conn.php';
     * {
       box-sizing: border-box;
     }
-    svg {
-      display: none;
-    }
+
   </style>
 </head>
 <body>
@@ -209,65 +220,41 @@ require 'include/db_conn.php';
   <header class="site-navbar">
     <div class="container">
       <div class="site-logo">
-        <img src="image/magmalogo.png" alt="Logo" class="logo" />
-        <a href="index.php">Magma TRD Resources</a>
+        <img src="<?php echo htmlspecialchars($settings['system_logo']); ?>" alt="Logo" class="logo" />
+        <a href="index.php">
+          <?php echo htmlspecialchars($settings['system_title']); ?>
+          <span style="margin-left: 0.5rem; font-weight: 600;">
+            <?php echo htmlspecialchars($settings['state_name']); ?>
+          </span>
+        </a>
       </div>
       <nav class="site-navigation">
         <ul class="menu">
-          <li><a href="index.php">Home</a></li>
-          <li><a href="gallery.php">Gallery</a></li>
-          <li><a href="events.php">Events</a></li>
-          <li><a href="about.php">About</a></li>
-          <li><a href="contact.php">Contact</a></li>
-          <!-- User Dropdown -->
-          <li class="nav-item">
-            <div class="user-info d-flex align-items-center">
-              <!--<button class="btn btn-primary btn-sm px-2 py-1 d-flex align-items-center" id="dropdownButton">
-                <img src="dashboard/member/path/to/profile.jpg" alt="Profile Picture" class="img-fluid" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;"/>
-                <span class="username ml-2">JohnDoe</span>
-              </button>
-              <!-- Custom Dropdown -->
-               <!-- <ul class="dropdown__items" id="dropdownItems">
-                <li><a class="not" href="dashboard/member/">Dashboard</a></li>
-                <li><a class="not" href="dashboard/member/logout.php">Log Out</a></li>
-              </ul> -->
-            </div>
-          </li>
+          <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
+          <?php if (isset($_SESSION['admin_id'])): ?>
+          <li><a href="admin_settings.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="logout.php" class="logout-btn">Logout</a></li>
+          <?php else: ?>
+          <li><a href="admin_login.php" class="login-btn">Admin Login</a></li>
+          <?php endif; ?>
         </ul>
       </nav>
     </div>
   </header>
-
-  <!-- (Optional) SVG filter definition for dropdown effects -->
-  <svg>
-    <filter id="goo">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
-      <feColorMatrix in="blur" type="matrix"
-                     values="1 0 0 0 0  
-                             0 1 0 0 0  
-                             0 0 1 0 0  
-                             0 0 0 18 -7" result="goo"/>
-      <feBlend in="SourceGraphic" in2="goo"/>
-    </filter>
-  </svg>
-
-  <!-- Page content goes here -->
-  <!-- <div class="site-section">
-    <!-- Your content -->
-    <!--<h2 class="section-title">Welcome to ICYM Karate-Do</h2>
-    <p>Your main content goes here.</p>
-  </div> -->
-
-  <!-- Dropdown Toggle Script -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const dropdownButton = document.getElementById('dropdownButton');
-      const dropdownItems = document.getElementById('dropdownItems');
-
-      dropdownButton.addEventListener('click', function() {
-        dropdownItems.classList.toggle('visible');
-      });
-    });
-  </script>
 </body>
 </html>
+
+<?php
+function adjustBrightness($hex, $steps) {
+    $hex = ltrim($hex, '#');
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    
+    $r = max(0, min(255, $r + $steps));
+    $g = max(0, min(255, $g + $steps));
+    $b = max(0, min(255, $b + $steps));
+    
+    return sprintf("#%02x%02x%02x", $r, $g, $b);
+}
+?>

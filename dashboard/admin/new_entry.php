@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require '../../include/db_conn.php';
 page_protect();
 ?>
@@ -354,6 +354,19 @@ table tr td label {
         required>
 </div>
 <script>
+    // Use the standardized mobile validation function
+    function validateMobile(value) {
+      // Remove any non-numeric characters
+      const numericValue = value.replace(/\D/g, '');
+      
+      // Check if the length is at least 10 or 11 digits
+      if (numericValue.length >= 10 && numericValue.length <= 11) {
+        return { isValid: true, message: '✓ Valid phone number', class: 'success' };
+      } else {
+        return { isValid: false, message: '✗ Phone number must be 10 or 11 digits', class: 'error' };
+      }
+    }
+    
     const phoneInput = document.getElementById('mobile');
     
     phoneInput.addEventListener('input', function(e) {
@@ -372,9 +385,9 @@ table tr td label {
         // Update input value
         e.target.value = value;
         
-        // Validation (optional)
-        const isComplete = value.replace(/-/g, '').length === 11;
-        e.target.style.borderColor = isComplete ? 'green' : '';
+        // Use the standardized validation
+        const result = validateMobile(value);
+        e.target.style.borderColor = result.isValid ? 'green' : 'red';
     });
 
     // Prevent non-numeric input (optional)

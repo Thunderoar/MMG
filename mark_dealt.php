@@ -13,7 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once 'include/noic_helper.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once 'include/db_conn.php';
+
+// Verify admin is logged in
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: admin_login.php");
+    exit();
+}
 
 // Validate that the noIC parameter is provided
 if (!isset($_POST['noIC']) || empty($_POST['noIC'])) {

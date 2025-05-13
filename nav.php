@@ -1,33 +1,29 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require 'include/db_conn.php';
-page_protect();
 
-// Check if the user is approved
-$query = "SELECT hasApproved FROM users WHERE userid = '$userId'";
-$result = mysqli_query($con, $query);
-$row = mysqli_fetch_assoc($result);
-$isApproved = $row['hasApproved'];
+// Get userId from session if available
+$userId = isset($_SESSION['userId']) ? $_SESSION['userId'] : null;
 
+// Check if the user is approved only if userId is set
+$isApproved = null;
+if ($userId !== null && $conn) {
+    $query = "SELECT hasApproved FROM users WHERE userid = '$userId'";
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $isApproved = $row['hasApproved'];
+    }
+}
 ?>
 
-<ul id="main-menu">
-        <li id="dash"><a href="index.php"><i class="entypo-gauge"></i><span>Dashboard</span></a></li>
-        <li id="paymnt"><a href="payments.php"><i class="entypo-star"></i><span>Payments</span></a></li>
-        <!-- <li id="health_status"><a href="new_health_status.php"><i class="entypo-user-add"></i><span>Health Status</span></a></li> -->
-		<li><a href="view_plan.php"><i class="entypo-quote"></i><span>Event Planning</span></a></li>
-        <!-- <li id="planhassubopen">
-            <a href="#" onclick="memberExpand(2)"><i class="entypo-quote"></i><span>Planning</span></a>
-            <ul id="planExpand">
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-            </ul>
-        </li> -->
-		<!--<li><a href="viewroutine.php"><i class="entypo-alert"></i><span>View Timetable</span></a></li>
-         <li id="routinehassubopen">
-            <a href="#" onclick="memberExpand(4)"><i class="entypo-alert"></i><span>Timetable</span></a>
-            <ul id="routineExpand">
-
-            </ul>
-        </li> -->
-        <li id="adminprofile"><a href="more-userprofile.php"><i class="entypo-folder"></i><span>Profile</span></a></li>
-        <li><a href="logout.php"><i class="entypo-logout"></i><span>Logout</span></a></li>
+<ul class="menu">
+  <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
+  <li><a href="admin_settings.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+  <li><a href="layout.php"><i class="fas fa-th-large"></i> Layout</a></li>
 </ul>
